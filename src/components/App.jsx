@@ -1,284 +1,12 @@
-// // // import {useState,useEffect,useRef} from 'react';
-// // // import {html} from '../html.js';
-// // // import {LS,fmt,T,iso,dl,sha,AM,P,BUD,rng,STEPS,ACK,SLOTS,tl,score} from '../lib/data.js';
-// // // import {Pic,Ic,I,Logo} from './ui.jsx';
-// // // import Cal from './Cal.jsx';
-// // // import Card from './Card.jsx';
-// // // import Detail from './Detail.jsx';
-// // // export default function App({user,out}){
-// // //  const key='nm_c_'+user.id,saved0=LS(key)||{};
-// // //  const[msgs,setMsgs]=useState(saved0.msgs||[]),[ans,setAns]=useState(saved0.ans||{}),[si,setSi]=useState(saved0.si||0),[ph,setPh]=useState(saved0.ph||'collect'),[sv,setSv]=useState(saved0.sv||[]);
-// // //  const[typing,setTyping]=useState(false),[busy,setBusy]=useState(false),[sel,setSel]=useState(null),[bk,setBk]=useState({}),[panel,setPanel]=useState(null),[txt,setTxt]=useState(''),[ms,setMs]=useState([]),[bks,setBks]=useState(LS('nm_bk')||[]);
-// // //  const end=useRef();const first=user.name.split(' ')[0];
-// // //  useEffect(()=>{LS(key,{msgs,ans,si,ph,sv})},[msgs,ans,si,ph,sv]);
-// // //  useEffect(()=>{end.current&&end.current.scrollIntoView({behavior:'smooth'})},[msgs,typing,ph]);
-// // //  const say=(t,x={},d=650)=>new Promise(r=>{setTyping(true);setTimeout(()=>{setMsgs(m=>[...m,{id:Math.random(),f:'b',t,time:T(),...x}]);setTyping(false);r()},d)});
-// // //  const me=(t,x={})=>setMsgs(m=>[...m,{id:Math.random(),f:'u',t,time:T(),...x}]);
-// // //  const q=(i,a)=>{const s=STEPS[i];return typeof s.q==='function'?s.q(a):s.q};
-// // //  const start=async()=>{setBusy(true);setMsgs([]);setAns({});setSi(0);setPh('collect');setSel(null);
-// // //   await say(`Hello ${first}! Welcome to Nivara AI 👋\n\nI'm your personal rental home assistant. I'll help you find a perfect flat based on your budget, preferred location and lifestyle.\n\nLet's get started!`,{},500);await say(q(0,{}),{step:0},700);setBusy(false)};
-// // //  useEffect(()=>{if(!msgs.length)start()},[]);
-// // //  const answer=async(val,label)=>{if(busy)return;const s=STEPS[si],na={...ans,[s.k]:val};setAns(na);setTxt('');setMs([]);
-// // //   me(label??(Array.isArray(val)?(val.join(', ')||'No preference'):val),{step:si});setBusy(true);const n=si+1;setSi(n);
-// // //   if(n<STEPS.length)await say(ACK[si%5]+' '+q(n,na),{step:n});else{setPh('summary');await say("I've understood your requirements! Shall I find the best matching flats for you?",{kind:'sum'})}setBusy(false)};
-// // //  const edit=i=>{if(busy||!['collect','summary','none'].includes(ph))return;const x=msgs.findIndex(m=>m.f==='b'&&m.step===i);if(x<0)return;setMsgs(msgs.slice(0,x+1));setSi(i);setPh('collect');setMs(Array.isArray(ans[STEPS[i].k])?ans[STEPS[i].k]:[])};
-// // //  const find=async(a=ans)=>{setBusy(true);me('Find My Home');await say('Searching verified, available listings…',{},500);
-// // //   const r=P.filter(p=>p.ok).map(p=>({id:p.id,s:score(p,a)})).filter(x=>x.s>=60).sort((a,b)=>b.s-a.s).slice(0,6);
-// // //   if(r.length){setPh('results');await say(`I found ${r.length} home${r.length>1?'s':''} for you. Tap View Details, Save, or Book Visit on the one you like.`,{kind:'props',r})}
-// // //   else{setPh('none');await say(`I couldn't find an exact match in ${a.city}${a.city==='Delhi NCR'||a.city==='Chennai'||a.city==='Other'?' (no listings added there yet)':''}. I only show properties that are really in our database. Would you like me to try a slightly higher budget or any locality in the city?`)}setBusy(false)};
-// // //  const relax=async w=>{const a={...ans};if(w==='b')a.budget=String(Math.round(rng(ans.budget)[1]*1.3));else a.locality=[];setAns(a);await find(a)};
-// // //  const book=async p=>{if(busy)return;setSel(p);setBk({});setPh('date');setBusy(true);me('Book a visit: '+p.name);await say('Great choice! Which date would you prefer for your visit?');setBusy(false)};
-// // //  const pickDate=async d=>{setBk({...bk,date:d});me(dl(d));setPh('time');setBusy(true);await say('What time would be convenient for you?');setBusy(false)};
-// // //  const taken=(d,t)=>bks.some(b=>b.pid===sel.id&&b.date===d&&b.time===t&&b.st==='confirmed');
-// // //  const pickTime=async t=>{setBk({...bk,time:t});me(tl(t));setPh('type');setBusy(true);await say('Would you like a physical property visit or a virtual video tour?');setBusy(false)};
-// // //  const pickType=async v=>{const b={...bk,vt:v};setBk(b);me(v);setPh('confirm');setBusy(true);await say('Here is your booking summary. Would you like to confirm this appointment?',{kind:'bk',bk:{...b,pid:sel.id}});setBusy(false)};
-// // //  const confirm=async()=>{if(taken(bk.date,bk.time)){setPh('time');await say('Sorry, that slot was just taken. Please choose another time.');return}
-// // //   me('Confirm appointment');setBusy(true);const id='NM'+Date.now().toString(36).toUpperCase().slice(-6);
-// // //   const b={id,pid:sel.id,date:bk.date,time:bk.time,vt:bk.vt,st:'confirmed',uid:user.id};const all=[...bks,b];LS('nm_bk',all);setBks(all);setPh('done');
-// // //   await say(`Booked! Your Booking ID is ${id}. A WhatsApp confirmation goes to +91 ${user.mobile}, with reminders 24 hours and 2 hours before.`,{kind:'wa',b});setBusy(false)};
-// // //  const cancel=id=>{const all=bks.map(b=>b.id===id?{...b,st:'cancelled'}:b);LS('nm_bk',all);setBks(all)};
-// // //  const save=id=>setSv(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
-// // //  const mine=bks.filter(b=>b.uid===user.id&&b.st==='confirmed'),prog=Math.round(Math.min(si,STEPS.length)/STEPS.length*100);
-// // //  const wa=b=>{const p=P.find(x=>x.id===b.pid);return `Hello ${user.name}!\n\nYour property visit is confirmed!\n\nProperty: ${p.name}\nLocation: ${p.loc}, ${p.city}\nDate: ${dl(b.date)}\nTime: ${tl(b.time)}\nBooking ID: ${b.id}\n\nOur property representative will meet you at the scheduled time.\n\nThank you for choosing Nivara AI!`};
-// // //  const s=STEPS[si],multi=ph==='collect'&&s&&s.t==='m',opts=s&&s.o?(typeof s.o==='function'?s.o(ans):s.o):[];
-// // //  const dock=()=>{
-// // //   if(busy||typing)return null;
-// // //   if(ph==='collect'&&s)return html`<div className="up space-y-3"><div className="flex flex-wrap gap-2">${opts.map(o=>html`<button key=${o} className=${'opt '+(multi&&ms.includes(o)?'on':'')} onClick=${()=>multi?setMs(ms.includes(o)?ms.filter(x=>x!==o):[...ms,o]):answer(o)}>${o}</button>`)}
-// // //    ${s.k==='locality'&&html`<button className="opt" onClick=${()=>answer([],'Anywhere in '+ans.city)}>Anywhere in city</button>`}
-// // //    ${s.t==='x'&&html`<button className="opt" onClick=${()=>answer('None','Skip')}>Skip</button>`}</div>
-// // //    ${multi&&html`<div className="flex flex-wrap gap-1.5 items-center">${ms.filter(x=>!opts.includes(x)).map(x=>html`<span key=${x} className="text-xs bg-em/10 text-em rounded-full px-2 py-1 font-semibold">${x}</span>`)}<button disabled=${!ms.length&&!s.nt} onClick=${()=>answer(ms)} className="ml-auto bg-em text-white rounded-xl px-5 py-2 text-sm font-bold disabled:opacity-40">${ms.length?`Continue (${ms.length})`:s.nt?'Continue / No preference':'Select at least one'}</button></div>`}
-// // //    <form className="flex gap-2" onSubmit=${e=>{e.preventDefault();const v=txt.trim();if(!v)return;if(multi){setMs([...ms,v]);setTxt('')}else answer(s.k==='budget'&&!BUD[v]?v.replace(/\D/g,'')||v:v,s.k==='budget'&&/\d/.test(v)?'Up to '+fmt(v.replace(/\D/g,'')):v)}}>
-// // //     <input value=${txt} onChange=${e=>setTxt(e.target.value)} placeholder=${s.t==='x'?'Type your requirements…':multi?'Type a locality or landmark and press add':s.ph||'Or type your own answer…'} className="flex-1 bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm"/>
-// // //     <button className="w-12 rounded-2xl bg-navy text-white grid place-items-center"><${Ic} d=${multi?'M12 5v14M5 12h14':I.send}/></button></form></div>`;
-// // //   if(ph==='summary')return html`<button onClick=${()=>find()} className="up glow w-full sm:w-auto bg-gradient-to-r from-em to-[#25a37a] text-white rounded-2xl px-10 py-4 font-extrabold tracking-wide hover:scale-[1.03] transition">Find My Home ✨</button>`;
-// // //   if(ph==='none')return html`<div className="flex flex-wrap gap-2 up"><button className="opt" onClick=${()=>relax('b')}>Raise budget ~30%</button><button className="opt" onClick=${()=>relax('l')}>Any locality in ${ans.city}</button><button className="opt" onClick=${start}>Start over</button></div>`;
-// // //   if(ph==='date')return html`<${Cal} onPick=${pickDate}/>`;
-// // //   if(ph==='time'){const t0=iso(new Date()),now=new Date().getHours()*60+new Date().getMinutes();const g=[['Morning',x=>+x.slice(0,2)<12],['Afternoon',x=>+x.slice(0,2)>=12&&+x.slice(0,2)<16],['Evening',x=>+x.slice(0,2)>=16]];
-// // //    return html`<div className="up space-y-2">${g.map(([n,fn])=>html`<div key=${n}><div className="text-xs font-bold text-slate-500 mb-1">${n}</div><div className="flex flex-wrap gap-2">${SLOTS.filter(fn).map(t=>{const past=bk.date===t0&&(+t.slice(0,2)*60+ +t.slice(3))<=now;return html`<button key=${t} disabled=${past||taken(bk.date,t)} className="opt" onClick=${()=>pickTime(t)}>${tl(t)}</button>`})}</div></div>`)}
-// // //    <button className="text-xs underline text-slate-500" onClick=${async()=>{setPh('date');me('Pick another date');setBusy(true);await say('Sure, which other date works for you?');setBusy(false)}}>Preferred slot unavailable? Choose another date</button></div>`}
-// // //   if(ph==='type')return html`<div className="flex gap-2 up">${['Physical Property Visit','Virtual Video Tour'].map(v=>html`<button key=${v} className="opt" onClick=${()=>pickType(v)}>${v}</button>`)}</div>`;
-// // //   if(ph==='confirm')return html`<div className="flex gap-2 up"><button onClick=${confirm} className="bg-em text-white rounded-2xl px-6 py-3 font-bold">Confirm Appointment</button><button className="opt" onClick=${async()=>{setPh('date');me('Change date/time');setBusy(true);await say('No problem. Which date would you prefer?');setBusy(false)}}>Change</button></div>`;
-// // //   if(ph==='done'||ph==='results')return html`<div className="flex gap-2 flex-wrap up">${ph==='done'&&html`<button className="opt" onClick=${()=>find()}>Show matches again</button>`}<button className="opt" onClick=${start}>Start a new search</button></div>`;
-// // //   return null};
-// // //  const Msg=({m})=>{const u=m.f==='u',p=m.kind==='bk'&&P.find(x=>x.id===m.bk.pid);
-// // //   return html`<div className=${'up flex '+(u?'justify-end':'justify-start')}><div className=${u?'max-w-[85%] text-right':'max-w-full'}>
-// // //    ${m.t&&html`<div className=${'inline-block text-left whitespace-pre-line px-4 py-2.5 text-[15px] leading-relaxed rounded-3xl '+(u?'bg-gradient-to-br from-navy to-[#2a4a85] text-white rounded-br-lg shadow-lg shadow-navy/25':'bg-white border border-white shadow-[0_8px_26px_-12px_rgba(23,43,77,.3)] rounded-bl-lg')}>${m.t}</div>`}
-// // //    ${m.kind==='sum'&&html`<div className="mt-2 bg-white border border-slate-200 rounded-2xl p-4 text-sm grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 max-w-md w-full">${STEPS.map((x,i)=>html`<div key=${x.k} className="flex justify-between gap-2 border-b border-slate-100 py-1"><span className="text-slate-500">${x.l}</span><b className="text-right">${[].concat(ans[x.k]??'—').join(', ')||'Any'}</b></div>`)}</div>`}
-// // //    ${m.kind==='props'&&html`<div className="flex gap-3 overflow-x-auto pb-2 mt-2 -mr-4 pr-4">${m.r.map(x=>{const p=P.find(y=>y.id===x.id);return html`<${Card} key=${x.id} p=${p} s=${x.s} saved=${sv.includes(p.id)} onView=${()=>{setSel(p);setPanel('info')}} onBook=${()=>book(p)} onSave=${()=>save(p.id)}/>`})}</div>`}
-// // //    ${p&&html`<div className="mt-2 bg-white border border-slate-200 rounded-2xl p-4 text-sm w-72 space-y-1">${[['Property',p.name],['Visit Date',dl(m.bk.date)],['Visit Time',tl(m.bk.time)],['Mode',m.bk.vt],['Customer',user.name],['Mobile','+91 '+user.mobile]].map(([a,b])=>html`<div key=${a} className="flex justify-between"><span className="text-slate-500">${a}</span><b className="text-right">${b}</b></div>`)}</div>`}
-// // //    ${m.kind==='wa'&&html`<div className="mt-2 w-80 max-w-full rounded-2xl p-3" style=${{background:'#e5ddd5'}}><div className="text-[10px] font-bold text-slate-600 mb-1">WhatsApp preview · sent by backend via Cloud API</div><div className="bg-[#d9fdd3] rounded-xl rounded-tl-none px-3 py-2 text-[13px] whitespace-pre-line shadow-sm">${wa(m.b)}</div></div>`}
-// // //    <div className="text-[10px] text-slate-400 mt-1 px-1 flex gap-2 items-center ${u?'justify-end':''}">${m.time}${u&&m.step!=null&&['collect','summary','none'].includes(ph)&&html`<button onClick=${()=>edit(m.step)} className="inline-flex items-center gap-0.5 hover:text-navy"><${Ic} d=${I.edit} c="w-3 h-3"/>edit</button>`}</div></div></div>`};
-// // //  const side=html`<div className=${(panel==='side'?'flex fixed inset-y-0 left-0 z-40 shadow-2xl':'hidden')+' lg:flex lg:static lg:shadow-none w-72 shrink-0 bg-white border-r border-slate-200 flex-col p-4 gap-4 overflow-y-auto'}>
-// // //   <div className="flex justify-between items-center"><${Logo}/><button className="lg:hidden" onClick=${()=>setPanel(null)}><${Ic} d=${I.x}/></button></div>
-// // //   <button onClick=${()=>{setPanel(null);start()}} className="bg-navy text-white rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-2"><${Ic} d=${I.chat}/>New conversation</button>
-// // //   <div><div className="text-[11px] font-bold text-slate-400 mb-1">MY AI CONVERSATIONS</div><div className="bg-ivory rounded-xl px-3 py-2 text-sm font-semibold">${ans.city?`${ans.bhk||'Home'} in ${ans.city}`:'Current chat'}<div className="text-xs text-slate-500 font-normal">${prog}% complete · auto-saved</div></div></div>
-// // //   <div><div className="text-[11px] font-bold text-slate-400 mb-1">MY APPOINTMENTS</div>${mine.length?mine.map(b=>{const p=P.find(x=>x.id===b.pid);return html`<div key=${b.id} className="bg-em/10 rounded-xl p-3 text-sm mb-2"><b>${p.name}</b><div className="text-xs">${dl(b.date)} · ${tl(b.time)}</div><div className="text-[11px] text-slate-500">ID ${b.id}</div><button onClick=${()=>cancel(b.id)} className="text-[11px] text-red-500 underline mt-1">Cancel</button></div>`}):html`<div className="text-xs text-slate-500">No upcoming visits yet.</div>`}</div>
-// // //   <div><div className="text-[11px] font-bold text-slate-400 mb-1">SAVED PROPERTIES</div>${sv.length?sv.map(id=>{const p=P.find(x=>x.id===id);return html`<button key=${id} onClick=${()=>{setSel(p);setPanel('info')}} className="block w-full text-left text-sm py-1 hover:text-em">♥ ${p.name} · ${fmt(p.rent)}</button>`}):html`<div className="text-xs text-slate-500">Tap the heart on a property.</div>`}</div>
-// // //   <div className="mt-auto border-t pt-3 flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-em text-white grid place-items-center font-bold">${first[0]}</div><div className="min-w-0 flex-1"><div className="text-sm font-bold truncate">${user.name}</div><div className="text-[11px] text-slate-500 truncate">${user.email}</div></div><button onClick=${out} title="Log out" className="text-slate-400 hover:text-navy"><${Ic} d=${I.out}/></button></div></div>`;
-// // //  const right=html`<div className=${(panel==='info'?'flex fixed inset-y-0 right-0 z-40 shadow-2xl w-[22rem] max-w-full':'hidden')+' xl:flex xl:static xl:shadow-none xl:w-80 shrink-0 bg-white border-l border-slate-200 p-4 overflow-y-auto flex-col'}>
-// // //   <button className="xl:hidden self-end mb-2" onClick=${()=>setPanel(null)}><${Ic} d=${I.x}/></button>
-// // //   ${sel?html`<${Detail} p=${sel} onBook=${()=>{setPanel(null);book(sel)}} onClose=${()=>setSel(null)}/>`:html`<div><b>Your requirements</b><div className="h-2 rounded-full bg-ivory mt-2 overflow-hidden"><div className="h-full bg-em transition-all" style=${{width:prog+'%'}}/></div><div className="text-xs text-slate-500 mt-1">${Math.min(si,STEPS.length)} of ${STEPS.length} answered</div>
-// // //    <div className="mt-3 space-y-2">${STEPS.map(x=>html`<div key=${x.k} className="flex justify-between gap-3 text-sm border-b border-slate-100 pb-1.5"><span className="text-slate-500">${x.l}</span><b className="text-right">${ans[x.k]!==undefined?([].concat(ans[x.k]).join(', ')||'Any'):'—'}</b></div>`)}</div></div>`}</div>`;
-// // //  return html`<div className="h-full flex">${side}${panel&&html`<div className="fixed inset-0 bg-black/30 z-30 xl:hidden" onClick=${()=>setPanel(null)}/>`}
-// // //   <main className="flex-1 min-w-0 flex flex-col bg-ivory"><header className="h-14 shrink-0 flex items-center gap-3 px-4 bg-white/80 backdrop-blur border-b border-slate-200"><button className="lg:hidden" onClick=${()=>setPanel('side')}><${Ic} d=${I.menu} c="w-5 h-5"/></button>
-// // //    <div className="w-9 h-9 rounded-full bg-em text-white grid place-items-center"><${Ic} d=${I.chat}/></div><div><div className="text-sm font-bold leading-none">Nivara Assistant</div><div className="text-[11px] text-em font-semibold">● Online</div></div>
-// // //    <div className="ml-auto hidden sm:flex items-center gap-2 w-40"><div className="h-1.5 flex-1 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-em transition-all" style=${{width:prog+'%'}}/></div><span className="text-[11px] font-bold">${prog}%</span></div>
-// // //    <button className="xl:hidden ml-auto sm:ml-0" onClick=${()=>setPanel('info')}><${Ic} d=${I.info} c="w-5 h-5"/></button></header>
-// // //    <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3"><div className="max-w-3xl mx-auto space-y-3">${msgs.map(m=>html`<${Msg} key=${m.id} m=${m}/>`)}
-// // //     ${typing&&html`<div className="bg-white border border-slate-200 rounded-3xl rounded-bl-lg px-4 py-3 inline-flex gap-1"><span className="dot"/><span className="dot"/><span className="dot"/></div>`}<div ref=${end}/></div></div>
-// // //    <div className="shrink-0 px-4 pb-4 pt-2 border-t border-slate-200/70 bg-ivory"><div className="max-w-3xl mx-auto min-h-[44px]">${dock()}</div></div></main>${right}</div>`}
-
-// // import {useState,useEffect,useRef} from 'react';
-// // import {html} from '../html.js';
-// // import {LS,fmt,T,iso,dl,sha,AM,P,BUD,rng,STEPS,ACK,SLOTS,tl,score} from '../lib/data.js';
-// // import {Pic,Ic,I,Logo} from './ui.jsx';
-// // import Cal from './Cal.jsx';
-// // import Card from './Card.jsx';
-// // import Detail from './Detail.jsx';
-// // export default function App({user,out}){
-// //  const key='nm_c_'+user.id,saved0=LS(key)||{};
-// //  const[msgs,setMsgs]=useState(saved0.msgs||[]),[ans,setAns]=useState(saved0.ans||{}),[si,setSi]=useState(saved0.si||0),[ph,setPh]=useState(saved0.ph||'collect'),[sv,setSv]=useState(saved0.sv||[]);
-// //  const[typing,setTyping]=useState(false),[busy,setBusy]=useState(false),[sel,setSel]=useState(null),[bk,setBk]=useState({}),[panel,setPanel]=useState(null),[txt,setTxt]=useState(''),[ms,setMs]=useState([]),[bks,setBks]=useState(LS('nm_bk')||[]);
-// //  const end=useRef();const first=user.name.split(' ')[0];
-// //  useEffect(()=>{LS(key,{msgs,ans,si,ph,sv})},[msgs,ans,si,ph,sv]);
-// //  useEffect(()=>{end.current&&end.current.scrollIntoView({behavior:'smooth'})},[msgs,typing,ph]);
-// //  const say=(t,x={},d=650)=>new Promise(r=>{setTyping(true);setTimeout(()=>{setMsgs(m=>[...m,{id:Math.random(),f:'b',t,time:T(),...x}]);setTyping(false);r()},d)});
-// //  const me=(t,x={})=>setMsgs(m=>[...m,{id:Math.random(),f:'u',t,time:T(),...x}]);
-// //  const q=(i,a)=>{const s=STEPS[i];return typeof s.q==='function'?s.q(a):s.q};
-// //  const start=async()=>{setBusy(true);setMsgs([]);setAns({});setSi(0);setPh('collect');setSel(null);
-// //   await say(`Hello ${first}! Welcome to Nivara AI 👋\n\nI'm your personal rental home assistant. I'll help you find a perfect flat based on your budget, preferred location and lifestyle.\n\nLet's get started!`,{},500);await say(q(0,{}),{step:0},700);setBusy(false)};
-// //  useEffect(()=>{if(!msgs.length)start()},[]);
-// //  const answer=async(val,label)=>{if(busy)return;const s=STEPS[si],na={...ans,[s.k]:val};setAns(na);setTxt('');setMs([]);
-// //   me(label??(Array.isArray(val)?(val.join(', ')||'No preference'):val),{step:si});setBusy(true);const n=si+1;setSi(n);
-// //   if(n<STEPS.length)await say(ACK[si%5]+' '+q(n,na),{step:n});else{setPh('summary');await say("I've understood your requirements! Shall I find the best matching flats for you?",{kind:'sum'})}setBusy(false)};
-// //  const edit=i=>{if(busy||!['collect','summary','none'].includes(ph))return;const x=msgs.findIndex(m=>m.f==='b'&&m.step===i);if(x<0)return;setMsgs(msgs.slice(0,x+1));setSi(i);setPh('collect');setMs(Array.isArray(ans[STEPS[i].k])?ans[STEPS[i].k]:[])};
-// //  const find=async(a=ans)=>{setBusy(true);me('Find My Home');await say('Searching verified, available listings…',{},500);
-// //   const r=P.filter(p=>p.ok).map(p=>({id:p.id,s:score(p,a)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,5);
-// //   if(r.length){const ex=r.filter(x=>x.s>=75).length;setPh('results');await say(ex?`Here are the top ${r.length} homes for you. Tap View Details, Save, or Book Visit on the one you like.`:`I couldn't find an exact match for every preference, so here are the ${r.length} closest verified homes in ${a.city}. Check the match % on each card.`,{kind:'props',r})}
-// //   else{setPh('none');await say(`I couldn't find an exact match in ${a.city}${a.city==='Delhi NCR'||a.city==='Chennai'||a.city==='Other'?' (no listings added there yet)':''}. I only show properties that are really in our database. Would you like me to try a slightly higher budget or any locality in the city?`)}setBusy(false)};
-// //  const relax=async w=>{const a={...ans};if(w==='b')a.budget=String(Math.round(rng(ans.budget)[1]*1.3));else a.locality=[];setAns(a);await find(a)};
-// //  const book=async p=>{if(busy)return;setSel(p);setBk({});setPh('date');setBusy(true);me('Book a visit: '+p.name);await say('Great choice! Which date would you prefer for your visit?');setBusy(false)};
-// //  const pickDate=async d=>{setBk({...bk,date:d});me(dl(d));setPh('time');setBusy(true);await say('What time would be convenient for you?');setBusy(false)};
-// //  const taken=(d,t)=>bks.some(b=>b.pid===sel.id&&b.date===d&&b.time===t&&b.st==='confirmed');
-// //  const pickTime=async t=>{setBk({...bk,time:t});me(tl(t));setPh('type');setBusy(true);await say('Would you like a physical property visit or a virtual video tour?');setBusy(false)};
-// //  const pickType=async v=>{const b={...bk,vt:v};setBk(b);me(v);setPh('confirm');setBusy(true);await say('Here is your booking summary. Would you like to confirm this appointment?',{kind:'bk',bk:{...b,pid:sel.id}});setBusy(false)};
-// //  const confirm=async()=>{if(taken(bk.date,bk.time)){setPh('time');await say('Sorry, that slot was just taken. Please choose another time.');return}
-// //   me('Confirm appointment');setBusy(true);const id='NM'+Date.now().toString(36).toUpperCase().slice(-6);
-// //   const b={id,pid:sel.id,date:bk.date,time:bk.time,vt:bk.vt,st:'confirmed',uid:user.id};const all=[...bks,b];LS('nm_bk',all);setBks(all);setPh('done');
-// //   await say(`Booked! Your Booking ID is ${id}. A WhatsApp confirmation goes to +91 ${user.mobile}, with reminders 24 hours and 2 hours before.`,{kind:'wa',b});setBusy(false)};
-// //  const cancel=id=>{const all=bks.map(b=>b.id===id?{...b,st:'cancelled'}:b);LS('nm_bk',all);setBks(all)};
-// //  const save=id=>setSv(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
-// //  const mine=bks.filter(b=>b.uid===user.id&&b.st==='confirmed'),prog=Math.round(Math.min(si,STEPS.length)/STEPS.length*100);
-// //  const wa=b=>{const p=P.find(x=>x.id===b.pid);return `Hello ${user.name}!\n\nYour property visit is confirmed!\n\nProperty: ${p.name}\nLocation: ${p.loc}, ${p.city}\nDate: ${dl(b.date)}\nTime: ${tl(b.time)}\nBooking ID: ${b.id}\n\nOur property representative will meet you at the scheduled time.\n\nThank you for choosing Nivara AI!`};
-// //  const s=STEPS[si],multi=ph==='collect'&&s&&s.t==='m',opts=s&&s.o?(typeof s.o==='function'?s.o(ans):s.o):[];
-// //  const dock=()=>{
-// //   if(busy||typing)return null;
-// //   if(ph==='collect'&&s)return html`<div className="up space-y-3"><div className="flex flex-wrap gap-2">${opts.map(o=>html`<button key=${o} className=${'opt '+(multi&&ms.includes(o)?'on':'')} onClick=${()=>multi?setMs(ms.includes(o)?ms.filter(x=>x!==o):[...ms,o]):answer(o)}>${o}</button>`)}
-// //    ${s.k==='locality'&&html`<button className="opt" onClick=${()=>answer([],'Anywhere in '+ans.city)}>Anywhere in city</button>`}
-// //    ${s.t==='x'&&html`<button className="opt" onClick=${()=>answer('None','Skip')}>Skip</button>`}</div>
-// //    ${multi&&html`<div className="flex flex-wrap gap-1.5 items-center">${ms.filter(x=>!opts.includes(x)).map(x=>html`<button key=${x} onClick=${()=>setMs(ms.filter(y=>y!==x))} className="text-xs bg-em/10 text-em rounded-full px-2.5 py-1 font-semibold">${x} ✕</button>`)}<button disabled=${!ms.length&&!txt.trim()&&!s.nt} onClick=${()=>answer(txt.trim()&&!ms.includes(txt.trim())?[...ms,txt.trim()]:ms)} className="ml-auto bg-em text-white rounded-xl px-5 py-2 text-sm font-bold disabled:opacity-40">${ms.length||txt.trim()?`Continue (${ms.length+(txt.trim()?1:0)})`:s.nt?'Continue / No preference':'Select at least one'}</button></div>`}
-// //    <form className="flex gap-2" onSubmit=${e=>{e.preventDefault();const v=txt.trim();if(!v)return;if(multi){setMs([...ms,v]);setTxt('')}else answer(s.k==='budget'&&!BUD[v]?v.replace(/\D/g,'')||v:v,s.k==='budget'&&/\d/.test(v)?'Up to '+fmt(v.replace(/\D/g,'')):v)}}>
-// //     <input value=${txt} onChange=${e=>setTxt(e.target.value)} placeholder=${s.t==='x'?'Type your requirements…':multi?'Type any other area or landmark, then tap + Add':s.ph||'Or type your own answer…'} className="flex-1 bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm"/>
-// //     <button className=${'rounded-2xl bg-navy text-white grid place-items-center '+(multi?'px-4 text-sm font-bold':'w-12')}>${multi?'+ Add':html`<${Ic} d=${I.send}/>`}</button></form></div>`;
-// //   if(ph==='summary')return html`<button onClick=${()=>find()} className="up glow w-full sm:w-auto bg-gradient-to-r from-em to-[#25a37a] text-white rounded-2xl px-10 py-4 font-extrabold tracking-wide hover:scale-[1.03] transition">Find My Home ✨</button>`;
-// //   if(ph==='none')return html`<div className="flex flex-wrap gap-2 up"><button className="opt" onClick=${()=>relax('b')}>Raise budget ~30%</button><button className="opt" onClick=${()=>relax('l')}>Any locality in ${ans.city}</button><button className="opt" onClick=${start}>Start over</button></div>`;
-// //   if(ph==='date')return html`<${Cal} onPick=${pickDate}/>`;
-// //   if(ph==='time'){const t0=iso(new Date()),now=new Date().getHours()*60+new Date().getMinutes();const g=[['Morning',x=>+x.slice(0,2)<12],['Afternoon',x=>+x.slice(0,2)>=12&&+x.slice(0,2)<16],['Evening',x=>+x.slice(0,2)>=16]];
-// //    return html`<div className="up space-y-2">${g.map(([n,fn])=>html`<div key=${n}><div className="text-xs font-bold text-slate-500 mb-1">${n}</div><div className="flex flex-wrap gap-2">${SLOTS.filter(fn).map(t=>{const past=bk.date===t0&&(+t.slice(0,2)*60+ +t.slice(3))<=now;return html`<button key=${t} disabled=${past||taken(bk.date,t)} className="opt" onClick=${()=>pickTime(t)}>${tl(t)}</button>`})}</div></div>`)}
-// //    <button className="text-xs underline text-slate-500" onClick=${async()=>{setPh('date');me('Pick another date');setBusy(true);await say('Sure, which other date works for you?');setBusy(false)}}>Preferred slot unavailable? Choose another date</button></div>`}
-// //   if(ph==='type')return html`<div className="flex gap-2 up">${['Physical Property Visit','Virtual Video Tour'].map(v=>html`<button key=${v} className="opt" onClick=${()=>pickType(v)}>${v}</button>`)}</div>`;
-// //   if(ph==='confirm')return html`<div className="flex gap-2 up"><button onClick=${confirm} className="bg-em text-white rounded-2xl px-6 py-3 font-bold">Confirm Appointment</button><button className="opt" onClick=${async()=>{setPh('date');me('Change date/time');setBusy(true);await say('No problem. Which date would you prefer?');setBusy(false)}}>Change</button></div>`;
-// //   if(ph==='done'||ph==='results')return html`<div className="flex gap-2 flex-wrap up">${ph==='done'&&html`<button className="opt" onClick=${()=>find()}>Show matches again</button>`}<button className="opt" onClick=${start}>Start a new search</button></div>`;
-// //   return null};
-// //  const Msg=({m})=>{const u=m.f==='u',p=m.kind==='bk'&&P.find(x=>x.id===m.bk.pid);
-// //   return html`<div className=${'up flex '+(u?'justify-end':'justify-start')}><div className=${u?'max-w-[85%] text-right':'max-w-full'}>
-// //    ${m.t&&html`<div className=${'inline-block text-left whitespace-pre-line px-4 py-2.5 text-[15px] leading-relaxed rounded-3xl '+(u?'bg-gradient-to-br from-navy to-[#2a4a85] text-white rounded-br-lg shadow-lg shadow-navy/25':'bg-white border border-white shadow-[0_8px_26px_-12px_rgba(23,43,77,.3)] rounded-bl-lg')}>${m.t}</div>`}
-// //    ${m.kind==='sum'&&html`<div className="mt-2 bg-white border border-slate-200 rounded-2xl p-4 text-sm grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 max-w-md w-full">${STEPS.map((x,i)=>html`<div key=${x.k} className="flex justify-between gap-2 border-b border-slate-100 py-1"><span className="text-slate-500">${x.l}</span><b className="text-right">${[].concat(ans[x.k]??'—').join(', ')||'Any'}</b></div>`)}</div>`}
-// //    ${m.kind==='props'&&html`<div className="flex gap-3 overflow-x-auto pb-2 mt-2 -mr-4 pr-4">${m.r.map(x=>{const p=P.find(y=>y.id===x.id);return html`<${Card} key=${x.id} p=${p} s=${x.s} saved=${sv.includes(p.id)} onView=${()=>{setSel(p);setPanel('info')}} onBook=${()=>book(p)} onSave=${()=>save(p.id)}/>`})}</div>`}
-// //    ${p&&html`<div className="mt-2 bg-white border border-slate-200 rounded-2xl p-4 text-sm w-72 space-y-1">${[['Property',p.name],['Visit Date',dl(m.bk.date)],['Visit Time',tl(m.bk.time)],['Mode',m.bk.vt],['Customer',user.name],['Mobile','+91 '+user.mobile]].map(([a,b])=>html`<div key=${a} className="flex justify-between"><span className="text-slate-500">${a}</span><b className="text-right">${b}</b></div>`)}</div>`}
-// //    ${m.kind==='wa'&&html`<div className="mt-2 w-80 max-w-full rounded-2xl p-3" style=${{background:'#e5ddd5'}}><div className="text-[10px] font-bold text-slate-600 mb-1">WhatsApp preview · sent by backend via Cloud API</div><div className="bg-[#d9fdd3] rounded-xl rounded-tl-none px-3 py-2 text-[13px] whitespace-pre-line shadow-sm">${wa(m.b)}</div></div>`}
-// //    <div className="text-[10px] text-slate-400 mt-1 px-1 flex gap-2 items-center ${u?'justify-end':''}">${m.time}${u&&m.step!=null&&['collect','summary','none'].includes(ph)&&html`<button onClick=${()=>edit(m.step)} className="inline-flex items-center gap-0.5 hover:text-navy"><${Ic} d=${I.edit} c="w-3 h-3"/>edit</button>`}</div></div></div>`};
-// //  const side=html`<div className=${(panel==='side'?'flex fixed inset-y-0 left-0 z-40 shadow-2xl':'hidden')+' lg:flex lg:static lg:shadow-none w-72 shrink-0 bg-white border-r border-slate-200 flex-col p-4 gap-4 overflow-y-auto'}>
-// //   <div className="flex justify-between items-center"><${Logo}/><button className="lg:hidden" onClick=${()=>setPanel(null)}><${Ic} d=${I.x}/></button></div>
-// //   <button onClick=${()=>{setPanel(null);start()}} className="bg-navy text-white rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-2"><${Ic} d=${I.chat}/>New conversation</button>
-// //   <div><div className="text-[11px] font-bold text-slate-400 mb-1">MY AI CONVERSATIONS</div><div className="bg-ivory rounded-xl px-3 py-2 text-sm font-semibold">${ans.city?`${ans.bhk||'Home'} in ${ans.city}`:'Current chat'}<div className="text-xs text-slate-500 font-normal">${prog}% complete · auto-saved</div></div></div>
-// //   <div><div className="text-[11px] font-bold text-slate-400 mb-1">MY APPOINTMENTS</div>${mine.length?mine.map(b=>{const p=P.find(x=>x.id===b.pid);return html`<div key=${b.id} className="bg-em/10 rounded-xl p-3 text-sm mb-2"><b>${p.name}</b><div className="text-xs">${dl(b.date)} · ${tl(b.time)}</div><div className="text-[11px] text-slate-500">ID ${b.id}</div><button onClick=${()=>cancel(b.id)} className="text-[11px] text-red-500 underline mt-1">Cancel</button></div>`}):html`<div className="text-xs text-slate-500">No upcoming visits yet.</div>`}</div>
-// //   <div><div className="text-[11px] font-bold text-slate-400 mb-1">SAVED PROPERTIES</div>${sv.length?sv.map(id=>{const p=P.find(x=>x.id===id);return html`<button key=${id} onClick=${()=>{setSel(p);setPanel('info')}} className="block w-full text-left text-sm py-1 hover:text-em">♥ ${p.name} · ${fmt(p.rent)}</button>`}):html`<div className="text-xs text-slate-500">Tap the heart on a property.</div>`}</div>
-// //   <div className="mt-auto border-t pt-3 flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-em text-white grid place-items-center font-bold">${first[0]}</div><div className="min-w-0 flex-1"><div className="text-sm font-bold truncate">${user.name}</div><div className="text-[11px] text-slate-500 truncate">${user.email}</div></div><button onClick=${out} title="Log out" className="text-slate-400 hover:text-navy"><${Ic} d=${I.out}/></button></div></div>`;
-// //  const right=html`<div className=${(panel==='info'?'flex fixed inset-y-0 right-0 z-40 shadow-2xl w-[22rem] max-w-full':'hidden')+' xl:flex xl:static xl:shadow-none xl:w-80 shrink-0 bg-white border-l border-slate-200 p-4 overflow-y-auto flex-col'}>
-// //   <button className="xl:hidden self-end mb-2" onClick=${()=>setPanel(null)}><${Ic} d=${I.x}/></button>
-// //   ${sel?html`<${Detail} p=${sel} onBook=${()=>{setPanel(null);book(sel)}} onClose=${()=>setSel(null)}/>`:html`<div><b>Your requirements</b><div className="h-2 rounded-full bg-ivory mt-2 overflow-hidden"><div className="h-full bg-em transition-all" style=${{width:prog+'%'}}/></div><div className="text-xs text-slate-500 mt-1">${Math.min(si,STEPS.length)} of ${STEPS.length} answered</div>
-// //    <div className="mt-3 space-y-2">${STEPS.map(x=>html`<div key=${x.k} className="flex justify-between gap-3 text-sm border-b border-slate-100 pb-1.5"><span className="text-slate-500">${x.l}</span><b className="text-right">${ans[x.k]!==undefined?([].concat(ans[x.k]).join(', ')||'Any'):'—'}</b></div>`)}</div></div>`}</div>`;
-// //  return html`<div className="h-full flex">${side}${panel&&html`<div className="fixed inset-0 bg-black/30 z-30 xl:hidden" onClick=${()=>setPanel(null)}/>`}
-// //   <main className="flex-1 min-w-0 flex flex-col bg-ivory"><header className="h-14 shrink-0 flex items-center gap-3 px-4 bg-white/80 backdrop-blur border-b border-slate-200"><button className="lg:hidden" onClick=${()=>setPanel('side')}><${Ic} d=${I.menu} c="w-5 h-5"/></button>
-// //    <div className="w-9 h-9 rounded-full bg-em text-white grid place-items-center"><${Ic} d=${I.chat}/></div><div><div className="text-sm font-bold leading-none">Nivara Assistant</div><div className="text-[11px] text-em font-semibold">● Online</div></div>
-// //    <div className="ml-auto hidden sm:flex items-center gap-2 w-40"><div className="h-1.5 flex-1 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-em transition-all" style=${{width:prog+'%'}}/></div><span className="text-[11px] font-bold">${prog}%</span></div>
-// //    <button className="xl:hidden ml-auto sm:ml-0" onClick=${()=>setPanel('info')}><${Ic} d=${I.info} c="w-5 h-5"/></button></header>
-// //    <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3"><div className="max-w-3xl mx-auto space-y-3">${msgs.map(m=>html`<${Msg} key=${m.id} m=${m}/>`)}
-// //     ${typing&&html`<div className="bg-white border border-slate-200 rounded-3xl rounded-bl-lg px-4 py-3 inline-flex gap-1"><span className="dot"/><span className="dot"/><span className="dot"/></div>`}<div ref=${end}/></div></div>
-// //    <div className="shrink-0 px-4 pb-4 pt-2 border-t border-slate-200/70 bg-ivory"><div className="max-w-3xl mx-auto min-h-[44px]">${dock()}</div></div></main>${right}</div>`}
-
-
-// import {useState,useEffect,useRef} from 'react';
-// import {html} from '../html.js';
-// import {LS,fmt,T,iso,dl,sha,AM,P,BUD,rng,STEPS,ACK,SLOTS,tl,score,locOk} from '../lib/data.js';
-// import {Pic,Ic,I,Logo} from './ui.jsx';
-// import Cal from './Cal.jsx';
-// import Card from './Card.jsx';
-// import Detail from './Detail.jsx';
-// export default function App({user,out}){
-//  const key='nm_c_'+user.id,saved0=LS(key)||{};
-//  const[msgs,setMsgs]=useState(saved0.msgs||[]),[ans,setAns]=useState(saved0.ans||{}),[si,setSi]=useState(saved0.si||0),[ph,setPh]=useState(saved0.ph||'collect'),[sv,setSv]=useState(saved0.sv||[]);
-//  const[typing,setTyping]=useState(false),[busy,setBusy]=useState(false),[sel,setSel]=useState(null),[bk,setBk]=useState({}),[panel,setPanel]=useState(null),[txt,setTxt]=useState(''),[ms,setMs]=useState([]),[bks,setBks]=useState(LS('nm_bk')||[]);
-//  const end=useRef();const first=user.name.split(' ')[0];
-//  useEffect(()=>{LS(key,{msgs,ans,si,ph,sv})},[msgs,ans,si,ph,sv]);
-//  useEffect(()=>{end.current&&end.current.scrollIntoView({behavior:'smooth'})},[msgs,typing,ph]);
-//  const say=(t,x={},d=650)=>new Promise(r=>{setTyping(true);setTimeout(()=>{setMsgs(m=>[...m,{id:Math.random(),f:'b',t,time:T(),...x}]);setTyping(false);r()},d)});
-//  const me=(t,x={})=>setMsgs(m=>[...m,{id:Math.random(),f:'u',t,time:T(),...x}]);
-//  const q=(i,a)=>{const s=STEPS[i];return typeof s.q==='function'?s.q(a):s.q};
-//  const start=async()=>{setBusy(true);setMsgs([]);setAns({});setSi(0);setPh('collect');setSel(null);
-//   await say(`Hello ${first}! Welcome to Nivara AI 👋\n\nI'm your personal rental home assistant. I'll help you find a perfect flat based on your budget, preferred location and lifestyle.\n\nLet's get started!`,{},500);await say(q(0,{}),{step:0},700);setBusy(false)};
-//  useEffect(()=>{if(!msgs.length)start()},[]);
-//  const answer=async(val,label)=>{if(busy)return;const s=STEPS[si],na={...ans,[s.k]:val};setAns(na);setTxt('');setMs([]);
-//   me(label??(Array.isArray(val)?(val.join(', ')||'No preference'):val),{step:si});setBusy(true);const n=si+1;setSi(n);
-//   if(n<STEPS.length)await say(ACK[si%5]+' '+q(n,na),{step:n});else{setPh('summary');await say("I've understood your requirements! Shall I find the best matching flats for you?",{kind:'sum'})}setBusy(false)};
-//  const edit=i=>{if(busy||!['collect','summary','none'].includes(ph))return;const x=msgs.findIndex(m=>m.f==='b'&&m.step===i);if(x<0)return;setMsgs(msgs.slice(0,x+1));setSi(i);setPh('collect');setMs(Array.isArray(ans[STEPS[i].k])?ans[STEPS[i].k]:[])};
-//  const find=async(a=ans)=>{setBusy(true);me('Find My Home');await say('Searching verified, available listings…',{},500);
-//   let r=P.filter(p=>p.ok).map(p=>({id:p.id,s:score(p,a)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);const area=(a.locality||[]).length>0,inArea=r.filter(x=>locOk(P.find(p=>p.id===x.id),a)),fb=area&&!inArea.length;if(area&&inArea.length)r=inArea;r=r.slice(0,5);
-//   if(r.length){const ex=r.filter(x=>x.s>=75).length;setPh('results');await say(fb?`I don't have listings in ${a.locality.join(', ')} yet, so here are the ${r.length} closest verified homes in ${a.city}.`:area&&ex?`Here are ${r.length} home${r.length>1?'s':''} in ${a.locality.join(', ')} that fit your preferences.`:ex?`Here are the top ${r.length} homes for you. Tap View Details, Save, or Book Visit on the one you like.`:`I couldn't find an exact match for every preference, so here are the ${r.length} closest ones${area?' in '+a.locality.join(', '):' in '+a.city}. Check the match % on each card.`,{kind:'props',r})}
-//   else{setPh('none');await say(`I couldn't find an exact match in ${a.city}${a.city==='Delhi NCR'||a.city==='Chennai'||a.city==='Other'?' (no listings added there yet)':''}. I only show properties that are really in our database. Would you like me to try a slightly higher budget or any locality in the city?`)}setBusy(false)};
-//  const relax=async w=>{const a={...ans};if(w==='b')a.budget=String(Math.round(rng(ans.budget)[1]*1.3));else a.locality=[];setAns(a);await find(a)};
-//  const book=async p=>{if(busy)return;setSel(p);setBk({});setPh('date');setBusy(true);me('Book a visit: '+p.name);await say('Great choice! Which date would you prefer for your visit?');setBusy(false)};
-//  const pickDate=async d=>{setBk({...bk,date:d});me(dl(d));setPh('time');setBusy(true);await say('What time would be convenient for you?');setBusy(false)};
-//  const taken=(d,t)=>bks.some(b=>b.pid===sel.id&&b.date===d&&b.time===t&&b.st==='confirmed');
-//  const pickTime=async t=>{setBk({...bk,time:t});me(tl(t));setPh('type');setBusy(true);await say('Would you like a physical property visit or a virtual video tour?');setBusy(false)};
-//  const pickType=async v=>{const b={...bk,vt:v};setBk(b);me(v);setPh('confirm');setBusy(true);await say('Here is your booking summary. Would you like to confirm this appointment?',{kind:'bk',bk:{...b,pid:sel.id}});setBusy(false)};
-//  const confirm=async()=>{if(taken(bk.date,bk.time)){setPh('time');await say('Sorry, that slot was just taken. Please choose another time.');return}
-//   me('Confirm appointment');setBusy(true);const id='NM'+Date.now().toString(36).toUpperCase().slice(-6);
-//   const b={id,pid:sel.id,date:bk.date,time:bk.time,vt:bk.vt,st:'confirmed',uid:user.id};const all=[...bks,b];LS('nm_bk',all);setBks(all);setPh('done');
-//   await say(`Booked! Your Booking ID is ${id}. A WhatsApp confirmation goes to +91 ${user.mobile}, with reminders 24 hours and 2 hours before.`,{kind:'wa',b});setBusy(false)};
-//  const cancel=id=>{const all=bks.map(b=>b.id===id?{...b,st:'cancelled'}:b);LS('nm_bk',all);setBks(all)};
-//  const save=id=>setSv(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
-//  const mine=bks.filter(b=>b.uid===user.id&&b.st==='confirmed'),prog=Math.round(Math.min(si,STEPS.length)/STEPS.length*100);
-//  const wa=b=>{const p=P.find(x=>x.id===b.pid);return `Hello ${user.name}!\n\nYour property visit is confirmed!\n\nProperty: ${p.name}\nLocation: ${p.loc}, ${p.city}\nDate: ${dl(b.date)}\nTime: ${tl(b.time)}\nBooking ID: ${b.id}\n\nOur property representative will meet you at the scheduled time.\n\nThank you for choosing Nivara AI!`};
-//  const s=STEPS[si],multi=ph==='collect'&&s&&s.t==='m',opts=s&&s.o?(typeof s.o==='function'?s.o(ans):s.o):[];
-//  const dock=()=>{
-//   if(busy||typing)return null;
-//   if(ph==='collect'&&s)return html`<div className="up space-y-3"><div className="flex flex-wrap gap-2">${opts.map(o=>html`<button key=${o} className=${'opt '+(multi&&ms.includes(o)?'on':'')} onClick=${()=>multi?setMs(ms.includes(o)?ms.filter(x=>x!==o):[...ms,o]):answer(o)}>${o}</button>`)}
-//    ${s.k==='locality'&&html`<button className="opt" onClick=${()=>answer([],'Anywhere in '+ans.city)}>Anywhere in city</button>`}
-//    ${s.t==='x'&&html`<button className="opt" onClick=${()=>answer('None','Skip')}>Skip</button>`}</div>
-//    ${multi&&html`<div className="flex flex-wrap gap-1.5 items-center">${ms.filter(x=>!opts.includes(x)).map(x=>html`<button key=${x} onClick=${()=>setMs(ms.filter(y=>y!==x))} className="text-xs bg-em/10 text-em rounded-full px-2.5 py-1 font-semibold">${x} ✕</button>`)}<button disabled=${!ms.length&&!txt.trim()&&!s.nt} onClick=${()=>answer(txt.trim()&&!ms.includes(txt.trim())?[...ms,txt.trim()]:ms)} className="ml-auto bg-em text-white rounded-xl px-5 py-2 text-sm font-bold disabled:opacity-40">${ms.length||txt.trim()?`Continue (${ms.length+(txt.trim()?1:0)})`:s.nt?'Continue / No preference':'Select at least one'}</button></div>`}
-//    <form className="flex gap-2" onSubmit=${e=>{e.preventDefault();const v=txt.trim();if(!v)return;if(multi){setMs([...ms,v]);setTxt('')}else answer(s.k==='budget'&&!BUD[v]?v.replace(/\D/g,'')||v:v,s.k==='budget'&&/\d/.test(v)?'Up to '+fmt(v.replace(/\D/g,'')):v)}}>
-//     <input value=${txt} onChange=${e=>setTxt(e.target.value)} placeholder=${s.t==='x'?'Type your requirements…':multi?'Type any other area or landmark, then tap + Add':s.ph||'Or type your own answer…'} className="flex-1 bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm"/>
-//     <button className=${'rounded-2xl bg-navy text-white grid place-items-center '+(multi?'px-4 text-sm font-bold':'w-12')}>${multi?'+ Add':html`<${Ic} d=${I.send}/>`}</button></form></div>`;
-//   if(ph==='summary')return html`<button onClick=${()=>find()} className="up glow w-full sm:w-auto bg-gradient-to-r from-em to-[#25a37a] text-white rounded-2xl px-10 py-4 font-extrabold tracking-wide hover:scale-[1.03] transition">Find My Home ✨</button>`;
-//   if(ph==='none')return html`<div className="flex flex-wrap gap-2 up"><button className="opt" onClick=${()=>relax('b')}>Raise budget ~30%</button><button className="opt" onClick=${()=>relax('l')}>Any locality in ${ans.city}</button><button className="opt" onClick=${start}>Start over</button></div>`;
-//   if(ph==='date')return html`<${Cal} onPick=${pickDate}/>`;
-//   if(ph==='time'){const t0=iso(new Date()),now=new Date().getHours()*60+new Date().getMinutes();const g=[['Morning',x=>+x.slice(0,2)<12],['Afternoon',x=>+x.slice(0,2)>=12&&+x.slice(0,2)<16],['Evening',x=>+x.slice(0,2)>=16]];
-//    return html`<div className="up space-y-2">${g.map(([n,fn])=>html`<div key=${n}><div className="text-xs font-bold text-slate-500 mb-1">${n}</div><div className="flex flex-wrap gap-2">${SLOTS.filter(fn).map(t=>{const past=bk.date===t0&&(+t.slice(0,2)*60+ +t.slice(3))<=now;return html`<button key=${t} disabled=${past||taken(bk.date,t)} className="opt" onClick=${()=>pickTime(t)}>${tl(t)}</button>`})}</div></div>`)}
-//    <button className="text-xs underline text-slate-500" onClick=${async()=>{setPh('date');me('Pick another date');setBusy(true);await say('Sure, which other date works for you?');setBusy(false)}}>Preferred slot unavailable? Choose another date</button></div>`}
-//   if(ph==='type')return html`<div className="flex gap-2 up">${['Physical Property Visit','Virtual Video Tour'].map(v=>html`<button key=${v} className="opt" onClick=${()=>pickType(v)}>${v}</button>`)}</div>`;
-//   if(ph==='confirm')return html`<div className="flex gap-2 up"><button onClick=${confirm} className="bg-em text-white rounded-2xl px-6 py-3 font-bold">Confirm Appointment</button><button className="opt" onClick=${async()=>{setPh('date');me('Change date/time');setBusy(true);await say('No problem. Which date would you prefer?');setBusy(false)}}>Change</button></div>`;
-//   if(ph==='done'||ph==='results')return html`<div className="flex gap-2 flex-wrap up">${ph==='done'&&html`<button className="opt" onClick=${()=>find()}>Show matches again</button>`}<button className="opt" onClick=${start}>Start a new search</button></div>`;
-//   return null};
-//  const Msg=({m})=>{const u=m.f==='u',p=m.kind==='bk'&&P.find(x=>x.id===m.bk.pid);
-//   return html`<div className=${'up flex '+(u?'justify-end':'justify-start')}><div className=${u?'max-w-[85%] text-right':'max-w-full'}>
-//    ${m.t&&html`<div className=${'inline-block text-left whitespace-pre-line px-4 py-2.5 text-[15px] leading-relaxed rounded-3xl '+(u?'bg-gradient-to-br from-navy to-[#2a4a85] text-white rounded-br-lg shadow-lg shadow-navy/25':'bg-white border border-white shadow-[0_8px_26px_-12px_rgba(23,43,77,.3)] rounded-bl-lg')}>${m.t}</div>`}
-//    ${m.kind==='sum'&&html`<div className="mt-2 bg-white border border-slate-200 rounded-2xl p-4 text-sm grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 max-w-md w-full">${STEPS.map((x,i)=>html`<div key=${x.k} className="flex justify-between gap-2 border-b border-slate-100 py-1"><span className="text-slate-500">${x.l}</span><b className="text-right">${[].concat(ans[x.k]??'—').join(', ')||'Any'}</b></div>`)}</div>`}
-//    ${m.kind==='props'&&html`<div className="flex gap-3 overflow-x-auto pb-2 mt-2 -mr-4 pr-4">${m.r.map(x=>{const p=P.find(y=>y.id===x.id);return html`<${Card} key=${x.id} p=${p} s=${x.s} saved=${sv.includes(p.id)} onView=${()=>{setSel(p);setPanel('info')}} onBook=${()=>book(p)} onSave=${()=>save(p.id)}/>`})}</div>`}
-//    ${p&&html`<div className="mt-2 bg-white border border-slate-200 rounded-2xl p-4 text-sm w-72 space-y-1">${[['Property',p.name],['Visit Date',dl(m.bk.date)],['Visit Time',tl(m.bk.time)],['Mode',m.bk.vt],['Customer',user.name],['Mobile','+91 '+user.mobile]].map(([a,b])=>html`<div key=${a} className="flex justify-between"><span className="text-slate-500">${a}</span><b className="text-right">${b}</b></div>`)}</div>`}
-//    ${m.kind==='wa'&&html`<div className="mt-2 w-80 max-w-full rounded-2xl p-3" style=${{background:'#e5ddd5'}}><div className="text-[10px] font-bold text-slate-600 mb-1">WhatsApp preview · sent by backend via Cloud API</div><div className="bg-[#d9fdd3] rounded-xl rounded-tl-none px-3 py-2 text-[13px] whitespace-pre-line shadow-sm">${wa(m.b)}</div></div>`}
-//    <div className="text-[10px] text-slate-400 mt-1 px-1 flex gap-2 items-center ${u?'justify-end':''}">${m.time}${u&&m.step!=null&&['collect','summary','none'].includes(ph)&&html`<button onClick=${()=>edit(m.step)} className="inline-flex items-center gap-0.5 hover:text-navy"><${Ic} d=${I.edit} c="w-3 h-3"/>edit</button>`}</div></div></div>`};
-//  const side=html`<div className=${(panel==='side'?'flex fixed inset-y-0 left-0 z-40 shadow-2xl':'hidden')+' lg:flex lg:static lg:shadow-none w-72 shrink-0 bg-white border-r border-slate-200 flex-col p-4 gap-4 overflow-y-auto'}>
-//   <div className="flex justify-between items-center"><${Logo}/><button className="lg:hidden" onClick=${()=>setPanel(null)}><${Ic} d=${I.x}/></button></div>
-//   <button onClick=${()=>{setPanel(null);start()}} className="bg-navy text-white rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-2"><${Ic} d=${I.chat}/>New conversation</button>
-//   <div><div className="text-[11px] font-bold text-slate-400 mb-1">MY AI CONVERSATIONS</div><div className="bg-ivory rounded-xl px-3 py-2 text-sm font-semibold">${ans.city?`${ans.bhk||'Home'} in ${ans.city}`:'Current chat'}<div className="text-xs text-slate-500 font-normal">${prog}% complete · auto-saved</div></div></div>
-//   <div><div className="text-[11px] font-bold text-slate-400 mb-1">MY APPOINTMENTS</div>${mine.length?mine.map(b=>{const p=P.find(x=>x.id===b.pid);return html`<div key=${b.id} className="bg-em/10 rounded-xl p-3 text-sm mb-2"><b>${p.name}</b><div className="text-xs">${dl(b.date)} · ${tl(b.time)}</div><div className="text-[11px] text-slate-500">ID ${b.id}</div><button onClick=${()=>cancel(b.id)} className="text-[11px] text-red-500 underline mt-1">Cancel</button></div>`}):html`<div className="text-xs text-slate-500">No upcoming visits yet.</div>`}</div>
-//   <div><div className="text-[11px] font-bold text-slate-400 mb-1">SAVED PROPERTIES</div>${sv.length?sv.map(id=>{const p=P.find(x=>x.id===id);return html`<button key=${id} onClick=${()=>{setSel(p);setPanel('info')}} className="block w-full text-left text-sm py-1 hover:text-em">♥ ${p.name} · ${fmt(p.rent)}</button>`}):html`<div className="text-xs text-slate-500">Tap the heart on a property.</div>`}</div>
-//   <div className="mt-auto border-t pt-3 flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-em text-white grid place-items-center font-bold">${first[0]}</div><div className="min-w-0 flex-1"><div className="text-sm font-bold truncate">${user.name}</div><div className="text-[11px] text-slate-500 truncate">${user.email}</div></div><button onClick=${out} title="Log out" className="text-slate-400 hover:text-navy"><${Ic} d=${I.out}/></button></div></div>`;
-//  const right=html`<div className=${(panel==='info'?'flex fixed inset-y-0 right-0 z-40 shadow-2xl w-[22rem] max-w-full':'hidden')+' xl:flex xl:static xl:shadow-none xl:w-80 shrink-0 bg-white border-l border-slate-200 p-4 overflow-y-auto flex-col'}>
-//   <button className="xl:hidden self-end mb-2" onClick=${()=>setPanel(null)}><${Ic} d=${I.x}/></button>
-//   ${sel?html`<${Detail} p=${sel} onBook=${()=>{setPanel(null);book(sel)}} onClose=${()=>setSel(null)}/>`:html`<div><b>Your requirements</b><div className="h-2 rounded-full bg-ivory mt-2 overflow-hidden"><div className="h-full bg-em transition-all" style=${{width:prog+'%'}}/></div><div className="text-xs text-slate-500 mt-1">${Math.min(si,STEPS.length)} of ${STEPS.length} answered</div>
-//    <div className="mt-3 space-y-2">${STEPS.map(x=>html`<div key=${x.k} className="flex justify-between gap-3 text-sm border-b border-slate-100 pb-1.5"><span className="text-slate-500">${x.l}</span><b className="text-right">${ans[x.k]!==undefined?([].concat(ans[x.k]).join(', ')||'Any'):'—'}</b></div>`)}</div></div>`}</div>`;
-//  return html`<div className="h-full flex">${side}${panel&&html`<div className="fixed inset-0 bg-black/30 z-30 xl:hidden" onClick=${()=>setPanel(null)}/>`}
-//   <main className="flex-1 min-w-0 flex flex-col bg-ivory"><header className="h-14 shrink-0 flex items-center gap-3 px-4 bg-white/80 backdrop-blur border-b border-slate-200"><button className="lg:hidden" onClick=${()=>setPanel('side')}><${Ic} d=${I.menu} c="w-5 h-5"/></button>
-//    <div className="w-9 h-9 rounded-full bg-em text-white grid place-items-center"><${Ic} d=${I.chat}/></div><div><div className="text-sm font-bold leading-none">Nivara Assistant</div><div className="text-[11px] text-em font-semibold">● Online</div></div>
-//    <div className="ml-auto hidden sm:flex items-center gap-2 w-40"><div className="h-1.5 flex-1 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-em transition-all" style=${{width:prog+'%'}}/></div><span className="text-[11px] font-bold">${prog}%</span></div>
-//    <button className="xl:hidden ml-auto sm:ml-0" onClick=${()=>setPanel('info')}><${Ic} d=${I.info} c="w-5 h-5"/></button></header>
-//    <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3"><div className="max-w-3xl mx-auto space-y-3">${msgs.map(m=>html`<${Msg} key=${m.id} m=${m}/>`)}
-//     ${typing&&html`<div className="bg-white border border-slate-200 rounded-3xl rounded-bl-lg px-4 py-3 inline-flex gap-1"><span className="dot"/><span className="dot"/><span className="dot"/></div>`}<div ref=${end}/></div></div>
-//    <div className="shrink-0 px-4 pb-4 pt-2 border-t border-slate-200/70 bg-ivory"><div className="max-w-3xl mx-auto min-h-[44px]">${dock()}</div></div></main>${right}</div>`}
-
-
 import {useState,useEffect,useRef} from 'react';
 import {html} from '../html.js';
-import {LS,fmt,T,iso,dl,sha,AM,P,BUD,rng,STEPS,ACK,SLOTS,tl,score,locOk} from '../lib/data.js';
+import {LS,fmt,T,iso,dl,sha,AM,P,BUD,rng,STEPS,ACK,SLOTS,tl,score,locOk,fmtP,pr,parseAmt} from '../lib/data.js';
 import {Pic,Ic,I,Logo} from './ui.jsx';
 import Cal from './Cal.jsx';
 import Card from './Card.jsx';
 import Detail from './Detail.jsx';
 export default function App({user,out}){
- const key='nm_c_'+user.id,saved0=LS(key)||{};
+ const key='nm_c3_'+user.id,saved0=LS(key)||{};
  const[msgs,setMsgs]=useState(saved0.msgs||[]),[ans,setAns]=useState(saved0.ans||{}),[si,setSi]=useState(saved0.si||0),[ph,setPh]=useState(saved0.ph||'collect'),[sv,setSv]=useState(saved0.sv||[]);
  const[typing,setTyping]=useState(false),[busy,setBusy]=useState(false),[sel,setSel]=useState(null),[bk,setBk]=useState({}),[panel,setPanel]=useState(null),[txt,setTxt]=useState(''),[ms,setMs]=useState([]),[bks,setBks]=useState(LS('nm_bk')||[]);
  const end=useRef();const first=user.name.split(' ')[0];
@@ -288,11 +16,11 @@ export default function App({user,out}){
  const me=(t,x={})=>setMsgs(m=>[...m,{id:Math.random(),f:'u',t,time:T(),...x}]);
  const q=(i,a)=>{const s=STEPS[i];return typeof s.q==='function'?s.q(a):s.q};
  const start=async()=>{setBusy(true);setMsgs([]);setAns({});setSi(0);setPh('collect');setSel(null);
-  await say(`Hello ${first}! Welcome to Nivara AI 👋\n\nI'm your personal rental home assistant. I'll help you find a perfect flat based on your budget, preferred location and lifestyle.\n\nLet's get started!`,{},500);await say(q(0,{}),{step:0},700);setBusy(false)};
+  await say(`Hello ${first}! Welcome to Nivara AI 👋\n\nI'm your personal property buying assistant. I'll help you find the perfect home to buy based on your budget, preferred location and lifestyle.\n\nLet's get started!`,{},500);await say(q(0,{}),{step:0},700);setBusy(false)};
  useEffect(()=>{if(!msgs.length)start()},[]);
  const answer=async(val,label)=>{if(busy)return;const s=STEPS[si],na={...ans,[s.k]:val};setAns(na);setTxt('');setMs([]);
   me(label??(Array.isArray(val)?(val.join(', ')||'No preference'):val),{step:si});setBusy(true);const n=si+1;setSi(n);
-  if(n<STEPS.length)await say(ACK[si%5]+' '+q(n,na),{step:n});else{setPh('summary');await say("I've understood your requirements! Shall I find the best matching flats for you?",{kind:'sum'})}setBusy(false)};
+  if(n<STEPS.length)await say(ACK[si%5]+' '+q(n,na),{step:n});else{setPh('summary');await say("I've understood your requirements! Shall I find the best matching homes for you?",{kind:'sum'})}setBusy(false)};
  const edit=i=>{if(busy||!['collect','summary','none'].includes(ph))return;const x=msgs.findIndex(m=>m.f==='b'&&m.step===i);if(x<0)return;setMsgs(msgs.slice(0,x+1));setSi(i);setPh('collect');setMs(Array.isArray(ans[STEPS[i].k])?ans[STEPS[i].k]:[])};
  const find=async(a=ans)=>{setBusy(true);me('Find My Home');await say('Searching verified, available listings…',{},500);
   let r=P.filter(p=>p.ok).map(p=>({id:p.id,s:score(p,a)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);const area=(a.locality||[]).length>0,inArea=r.filter(x=>locOk(P.find(p=>p.id===x.id),a)),fb=area&&!inArea.length;if(area)r=inArea;r=r.slice(0,5);
@@ -302,7 +30,7 @@ export default function App({user,out}){
  const book=async p=>{if(busy)return;setSel(p);setBk({});setPh('date');setBusy(true);me('Book a visit: '+p.name);await say('Great choice! Which date would you prefer for your visit?');setBusy(false)};
  const pickDate=async d=>{setBk({...bk,date:d});me(dl(d));setPh('time');setBusy(true);await say('What time would be convenient for you?');setBusy(false)};
  const taken=(d,t)=>bks.some(b=>b.pid===sel.id&&b.date===d&&b.time===t&&b.st==='confirmed');
- const pickTime=async t=>{setBk({...bk,time:t});me(tl(t));setPh('type');setBusy(true);await say('Would you like a physical property visit or a virtual video tour?');setBusy(false)};
+ const pickTime=async t=>{setBk({...bk,time:t});me(tl(t));setPh('type');setBusy(true);await say('Would you like a physical site visit or a virtual video tour?');setBusy(false)};
  const pickType=async v=>{const b={...bk,vt:v};setBk(b);me(v);setPh('confirm');setBusy(true);await say('Here is your booking summary. Would you like to confirm this appointment?',{kind:'bk',bk:{...b,pid:sel.id}});setBusy(false)};
  const confirm=async()=>{if(taken(bk.date,bk.time)){setPh('time');await say('Sorry, that slot was just taken. Please choose another time.');return}
   me('Confirm appointment');setBusy(true);const id='NM'+Date.now().toString(36).toUpperCase().slice(-6);
@@ -310,7 +38,7 @@ export default function App({user,out}){
   await say(`Booked! Your Booking ID is ${id}. A WhatsApp confirmation goes to +91 ${user.mobile}, with reminders 24 hours and 2 hours before.`,{kind:'wa',b});setBusy(false)};
  const cancel=id=>{const all=bks.map(b=>b.id===id?{...b,st:'cancelled'}:b);LS('nm_bk',all);setBks(all)};
  const save=id=>setSv(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
- const mine=bks.filter(b=>b.uid===user.id&&b.st==='confirmed'),prog=Math.round(Math.min(si,STEPS.length)/STEPS.length*100);
+ const mine=bks.filter(b=>b.uid===user.id&&b.st==='confirmed'&&P.some(x=>x.id===b.pid)),svp=sv.map(id=>P.find(x=>x.id===id)).filter(Boolean),prog=Math.round(Math.min(si,STEPS.length)/STEPS.length*100);
  const wa=b=>{const p=P.find(x=>x.id===b.pid);return `Hello ${user.name}!\n\nYour property visit is confirmed!\n\nProperty: ${p.name}\nLocation: ${p.loc}, ${p.city}\nDate: ${dl(b.date)}\nTime: ${tl(b.time)}\nBooking ID: ${b.id}\n\nOur property representative will meet you at the scheduled time.\n\nThank you for choosing Nivara AI!`};
  const s=STEPS[si],multi=ph==='collect'&&s&&s.t==='m',opts=s&&s.o?(typeof s.o==='function'?s.o(ans):s.o):[];
  const dock=()=>{
@@ -319,7 +47,7 @@ export default function App({user,out}){
    ${s.k==='locality'&&html`<button className="opt" onClick=${()=>answer([],'Anywhere in '+ans.city)}>Anywhere in city</button>`}
    ${s.t==='x'&&html`<button className="opt" onClick=${()=>answer('None','Skip')}>Skip</button>`}</div>
    ${multi&&html`<div className="flex flex-wrap gap-1.5 items-center">${ms.filter(x=>!opts.includes(x)).map(x=>html`<button key=${x} onClick=${()=>setMs(ms.filter(y=>y!==x))} className="text-xs bg-em/10 text-em rounded-full px-2.5 py-1 font-semibold">${x} ✕</button>`)}<button disabled=${!ms.length&&!txt.trim()&&!s.nt} onClick=${()=>answer(txt.trim()&&!ms.includes(txt.trim())?[...ms,txt.trim()]:ms)} className="ml-auto bg-em text-white rounded-xl px-5 py-2 text-sm font-bold disabled:opacity-40">${ms.length||txt.trim()?`Continue (${ms.length+(txt.trim()?1:0)})`:s.nt?'Continue / No preference':'Select at least one'}</button></div>`}
-   <form className="flex gap-2" onSubmit=${e=>{e.preventDefault();const v=txt.trim();if(!v)return;if(multi){setMs([...ms,v]);setTxt('')}else answer(s.k==='budget'&&!BUD[v]?v.replace(/\D/g,'')||v:v,s.k==='budget'&&/\d/.test(v)?'Up to '+fmt(v.replace(/\D/g,'')):v)}}>
+   <form className="flex gap-2" onSubmit=${e=>{e.preventDefault();const v=txt.trim();if(!v)return;if(multi){setMs([...ms,v]);setTxt('')}else if(s.k==='budget'){const am=parseAmt(v);answer(am?String(Math.round(am)):v,am?'Up to '+fmtP(am):v)}else answer(v)}}>
     <input value=${txt} onChange=${e=>setTxt(e.target.value)} placeholder=${s.t==='x'?'Type your requirements…':multi?'Type any other area or landmark, then tap + Add':s.ph||'Or type your own answer…'} className="flex-1 bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm"/>
     <button className=${'rounded-2xl bg-navy text-white grid place-items-center '+(multi?'px-4 text-sm font-bold':'w-12')}>${multi?'+ Add':html`<${Ic} d=${I.send}/>`}</button></form></div>`;
   if(ph==='summary')return html`<button onClick=${()=>find()} className="up glow w-full sm:w-auto bg-gradient-to-r from-em to-[#25a37a] text-white rounded-2xl px-10 py-4 font-extrabold tracking-wide hover:scale-[1.03] transition">Find My Home ✨</button>`;
@@ -345,7 +73,7 @@ export default function App({user,out}){
   <button onClick=${()=>{setPanel(null);start()}} className="bg-navy text-white rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-2"><${Ic} d=${I.chat}/>New conversation</button>
   <div><div className="text-[11px] font-bold text-slate-400 mb-1">MY AI CONVERSATIONS</div><div className="bg-ivory rounded-xl px-3 py-2 text-sm font-semibold">${ans.city?`${ans.bhk||'Home'} in ${ans.city}`:'Current chat'}<div className="text-xs text-slate-500 font-normal">${prog}% complete · auto-saved</div></div></div>
   <div><div className="text-[11px] font-bold text-slate-400 mb-1">MY APPOINTMENTS</div>${mine.length?mine.map(b=>{const p=P.find(x=>x.id===b.pid);return html`<div key=${b.id} className="bg-em/10 rounded-xl p-3 text-sm mb-2"><b>${p.name}</b><div className="text-xs">${dl(b.date)} · ${tl(b.time)}</div><div className="text-[11px] text-slate-500">ID ${b.id}</div><button onClick=${()=>cancel(b.id)} className="text-[11px] text-red-500 underline mt-1">Cancel</button></div>`}):html`<div className="text-xs text-slate-500">No upcoming visits yet.</div>`}</div>
-  <div><div className="text-[11px] font-bold text-slate-400 mb-1">SAVED PROPERTIES</div>${sv.length?sv.map(id=>{const p=P.find(x=>x.id===id);return html`<button key=${id} onClick=${()=>{setSel(p);setPanel('info')}} className="block w-full text-left text-sm py-1 hover:text-em">♥ ${p.name} · ${fmt(p.rent)}</button>`}):html`<div className="text-xs text-slate-500">Tap the heart on a property.</div>`}</div>
+  <div><div className="text-[11px] font-bold text-slate-400 mb-1">SAVED PROPERTIES</div>${svp.length?svp.map(p=>{const id=p.id;return html`<button key=${id} onClick=${()=>{setSel(p);setPanel('info')}} className="block w-full text-left text-sm py-1 hover:text-em">♥ ${p.name} · ${pr(p)}</button>`}):html`<div className="text-xs text-slate-500">Tap the heart on a property.</div>`}</div>
   <div className="mt-auto border-t pt-3 flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-em text-white grid place-items-center font-bold">${first[0]}</div><div className="min-w-0 flex-1"><div className="text-sm font-bold truncate">${user.name}</div><div className="text-[11px] text-slate-500 truncate">${user.email}</div></div><button onClick=${out} title="Log out" className="text-slate-400 hover:text-navy"><${Ic} d=${I.out}/></button></div></div>`;
  const right=html`<div className=${(panel==='info'?'flex fixed inset-y-0 right-0 z-40 shadow-2xl w-[22rem] max-w-full':'hidden')+' xl:flex xl:static xl:shadow-none xl:w-80 shrink-0 bg-white border-l border-slate-200 p-4 overflow-y-auto flex-col'}>
   <button className="xl:hidden self-end mb-2" onClick=${()=>setPanel(null)}><${Ic} d=${I.x}/></button>
